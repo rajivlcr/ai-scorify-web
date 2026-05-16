@@ -1,113 +1,84 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import Quiz from "./pages/Quiz";
-import Result from "./pages/Result";
-import Dashboard from "./pages/Dashboard";
+
+import Navbar from "./components/Navbar";
+
 import Login from "./pages/Login";
+
 import Register from "./pages/Register";
-import Profile from "./pages/Profile";
-import Subject from "./pages/Subject";
+
+import Dashboard from "./pages/Dashboard";
+
 import Subjects from "./pages/Subjects";
+
+import Subject from "./pages/Subject";
+
+import Quiz from "./pages/Quiz";
+
+import Result from "./pages/Result";
+
+import Pricing from "./pages/Pricing";
+
 import { useAuth } from "./context/AuthContext";
 
 export default function App() {
   const { user } = useAuth();
-  console.log("APP USER:", user); // 🔥 ADD THIS
-  return (
-    <Routes>
-      {/* PUBLIC */}
-      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-      <Route
-        path="/register"
-        element={!user ? <Register /> : <Navigate to="/" />}
-      />
 
-      {/* PROTECTED */}
-      <Route
-        path="/"
-        element={
-          user ? (
-            <Layout>
-              <Home />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/subject/:name"
-        element={
-          user ? (
-            <Layout>
-              <Subject />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/quiz"
-        element={
-          user ? (
-            <Layout>
-              <Quiz />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/result"
-        element={
-          user ? (
-            <Layout>
-              <Result />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          user ? (
-            <Layout>
-              <Dashboard />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          user ? (
-            <Layout>
-              <Profile />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-      <Route
-        path="/subjects"
-        element={
-          user ? (
-            <Layout>
-              <Subjects />
-            </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
-    </Routes>
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* 🚀 GLOBAL NAVBAR */}
+      <Navbar />
+
+      {/* 🚀 PAGE CONTENT */}
+      <div className="max-w-7xl mx-auto p-4">
+        <Routes>
+          {/* 🚀 AUTO REDIRECT */}
+          <Route
+            path="/"
+            element={
+              user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+            }
+          />
+
+          {/* 🔓 AUTH */}
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/dashboard" /> : <Login />}
+          />
+
+          <Route
+            path="/register"
+            element={user ? <Navigate to="/dashboard" /> : <Register />}
+          />
+
+          {/* 🔐 PROTECTED */}
+          <Route
+            path="/dashboard"
+            element={user ? <Dashboard /> : <Navigate to="/login" />}
+          />
+
+          <Route
+            path="/subjects"
+            element={user ? <Subjects /> : <Navigate to="/login" />}
+          />
+
+          <Route
+            path="/subject/:name"
+            element={user ? <Subject /> : <Navigate to="/login" />}
+          />
+
+          <Route
+            path="/quiz"
+            element={user ? <Quiz /> : <Navigate to="/login" />}
+          />
+
+          <Route
+            path="/result"
+            element={user ? <Result /> : <Navigate to="/login" />}
+          />
+
+          <Route path="/pricing" element={<Pricing />} />
+        </Routes>
+      </div>
+    </div>
   );
 }

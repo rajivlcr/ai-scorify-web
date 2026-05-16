@@ -1,56 +1,77 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import api from "../services/api";
+
 import { useAuth } from "../context/AuthContext";
 
 export default function Quiz() {
   const [quiz, setQuiz] = useState([]);
+
   const [answers, setAnswers] = useState([]);
+
   const [timeLeft, setTimeLeft] = useState(300);
 
-  // ✅ NEW
   const [loading, setLoading] = useState(true);
+
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const navigate = useNavigate();
 
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const subject = localStorage.getItem("subject");
 
   const chapter = localStorage.getItem("chapter");
 
-  // 🔥 FETCH NCERT-GROUNDED QUIZ
+  // 🔥 FETCH QUIZ
   useEffect(() => {
-    const fetchQuiz = async () => {
-      try {
-        setLoading(true);
+    api
+      .post("/quiz/generate", {
+        subject,
+        chapter,
+      })
 
-        const res = await api.post("/quiz/generate", {
-          // ✅ IMPORTANT
-          subject: subject?.toLowerCase().trim(),
+      .then((res) => {
+        // ✅ SET QUIZ
+        setQuiz(res.data.questions);
 
-          // ✅ IMPORTANT
-          chapter: chapter?.toLowerCase().trim(),
-        });
+        // ✅ UPDATE USER
+        if (res.data.user) {
+          localStorage.setItem(
+            "user",
 
-        setQuiz(res.data);
-      } catch (err) {
+            JSON.stringify(res.data.user),
+          );
+        }
+
+        // ✅ UPDATE AUTH STATE
+        setUser(res.data.user);
+
+        setLoading(false);
+      })
+
+      .catch((err) => {
+        if (err?.response?.data?.premiumRequired) {
+          setShowUpgrade(true);
+
+          return;
+        }
+
         console.error("QUIZ FETCH ERROR:", err);
 
-        alert(err?.response?.data?.msg || "Failed to load quiz");
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchQuiz();
+      });
   }, []);
 
-  // 🔥 TIMER
+  // ⏱ TIMER
   useEffect(() => {
+    if (loading || showUpgrade) return;
+
     if (timeLeft <= 0) {
       submitQuiz();
+
       return;
     }
 
@@ -59,9 +80,9 @@ export default function Quiz() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, loading, showUpgrade]);
 
-  // 🔥 HANDLE ANSWER
+  // ✅ ANSWERS
   const handleAnswer = (i, val) => {
     const updated = [...answers];
 
@@ -70,7 +91,7 @@ export default function Quiz() {
     setAnswers(updated);
   };
 
-  // 🔥 SUBMIT QUIZ
+  // 🚀 SUBMIT QUIZ
   const submitQuiz = async () => {
     try {
       const userId = user?.id || user?.email;
@@ -78,19 +99,33 @@ export default function Quiz() {
       const res = await api.post("/quiz/submit", {
         userId,
 
-        subject: subject?.toLowerCase().trim(),
+        subject,
 
-        chapter: chapter?.toLowerCase().trim(),
+        chapter,
 
         quiz,
+
         answers,
       });
 
-      localStorage.setItem("result", JSON.stringify(res.data));
+      // ✅ SAVE RESULT
+      localStorage.setItem(
+        "result",
 
-      localStorage.setItem("quiz", JSON.stringify(quiz));
+        JSON.stringify(res.data),
+      );
 
-      localStorage.setItem("answers", JSON.stringify(answers));
+      localStorage.setItem(
+        "quiz",
+
+        JSON.stringify(quiz),
+      );
+
+      localStorage.setItem(
+        "answers",
+
+        JSON.stringify(answers),
+      );
 
       navigate("/result");
     } catch (err) {
@@ -98,7 +133,7 @@ export default function Quiz() {
     }
   };
 
-  // 🔥 FORMAT TIME
+  // ⏱ FORMAT TIME
   const formatTime = () => {
     const min = Math.floor(timeLeft / 60);
 
@@ -107,15 +142,39 @@ export default function Quiz() {
     return `${min}:${sec < 10 ? "0" : ""}${sec}`;
   };
 
-  // ✅ LOADING SCREEN
+  // 🚀 LOADING
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[70vh]">
-        <div className="w-14 h-14 border-4 border-purple-300 border-t-purple-600 rounded-full animate-spin mb-5" />
+      <div className="flex justify-center items-center h-[70vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-14 w-14 border-b-4 border-purple-600 mx-auto mb-4"></div>
 
-        <h2 className="text-2xl font-bold text-purple-700">AI-Scorify</h2>
+          <p className="text-gray-600">Generating AI Quiz...</p>
+        </div>
+      </div>
+    );
+  }
 
-        <p className="text-gray-500 mt-2">Generating NCERT-grounded quiz...</p>
+  // 🚀 PREMIUM POPUP
+  if (showUpgrade) {
+    return (
+      <div className="flex justify-center items-center h-[70vh]">
+        <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
+          <h1 className="text-2xl font-bold text-purple-600 mb-4">
+            Upgrade to Pro 🚀
+          </h1>
+
+          <p className="text-gray-600 mb-6">
+            You have reached your free daily quiz limit.
+          </p>
+
+          <button
+            onClick={() => navigate("/pricing")}
+            className="bg-purple-600 text-white px-6 py-3 rounded-xl"
+          >
+            View Plans
+          </button>
+        </div>
       </div>
     );
   }
@@ -133,7 +192,7 @@ export default function Quiz() {
       <div className="mb-4">
         <div className="w-full bg-gray-200 h-2 rounded">
           <div
-            className="bg-purple-600 h-2 rounded transition-all"
+            className="bg-purple-600 h-2 rounded"
             style={{
               width: `${
                 quiz.length ? (answers.length / quiz.length) * 100 : 0
@@ -148,19 +207,19 @@ export default function Quiz() {
         <div key={i} className="bg-white p-5 rounded-2xl shadow mb-4">
           <p className="text-sm text-gray-500 mb-1">Question {i + 1}</p>
 
-          <p className="font-semibold text-lg">{q.question}</p>
+          <p className="font-semibold">{q.question}</p>
 
           {q.options.map((opt) => (
             <button
               key={opt}
               onClick={() => handleAnswer(i, opt)}
-              className={`w-full mt-3 p-3 rounded-xl border text-left transition-all
+              className={`w-full mt-3 p-3 rounded-xl border text-left transition
 
-              ${
-                answers[i] === opt
-                  ? "bg-purple-600 text-white shadow-md scale-[1.02]"
-                  : "bg-gray-50 hover:bg-gray-100"
-              }`}
+                ${
+                  answers[i] === opt
+                    ? "bg-purple-600 text-white shadow-md"
+                    : "bg-gray-50 hover:bg-gray-100"
+                }`}
             >
               {opt}
             </button>
