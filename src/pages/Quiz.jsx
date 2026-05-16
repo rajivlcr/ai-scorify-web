@@ -6,6 +6,10 @@ import api from "../services/api";
 
 import { useAuth } from "../context/AuthContext";
 
+import Loader from "../components/Loader";
+
+import QuizTimer from "../components/QuizTimer";
+
 export default function Quiz() {
   const [quiz, setQuiz] = useState([]);
 
@@ -25,29 +29,31 @@ export default function Quiz() {
 
   const chapter = localStorage.getItem("chapter");
 
-  // 🔥 FETCH QUIZ
+  const quizType = localStorage.getItem("quizType");
+
+  // 🚀 FETCH QUIZ
   useEffect(() => {
     api
       .post("/quiz/generate", {
         subject,
+
         chapter,
+
+        type: quizType,
       })
 
       .then((res) => {
-        // ✅ SET QUIZ
         setQuiz(res.data.questions);
 
-        // ✅ UPDATE USER
         if (res.data.user) {
           localStorage.setItem(
             "user",
 
             JSON.stringify(res.data.user),
           );
-        }
 
-        // ✅ UPDATE AUTH STATE
-        setUser(res.data.user);
+          setUser(res.data.user);
+        }
 
         setLoading(false);
       })
@@ -59,13 +65,13 @@ export default function Quiz() {
           return;
         }
 
-        console.error("QUIZ FETCH ERROR:", err);
+        console.error(err);
 
         setLoading(false);
       });
   }, []);
 
-  // ⏱ TIMER
+  // 🚀 TIMER
   useEffect(() => {
     if (loading || showUpgrade) return;
 
@@ -82,7 +88,7 @@ export default function Quiz() {
     return () => clearInterval(timer);
   }, [timeLeft, loading, showUpgrade]);
 
-  // ✅ ANSWERS
+  // 🚀 ANSWER
   const handleAnswer = (i, val) => {
     const updated = [...answers];
 
@@ -91,7 +97,7 @@ export default function Quiz() {
     setAnswers(updated);
   };
 
-  // 🚀 SUBMIT QUIZ
+  // 🚀 SUBMIT
   const submitQuiz = async () => {
     try {
       const userId = user?.id || user?.email;
@@ -108,7 +114,6 @@ export default function Quiz() {
         answers,
       });
 
-      // ✅ SAVE RESULT
       localStorage.setItem(
         "result",
 
@@ -129,33 +134,21 @@ export default function Quiz() {
 
       navigate("/result");
     } catch (err) {
-      console.error(err);
+      console.log(err);
     }
-  };
-
-  // ⏱ FORMAT TIME
-  const formatTime = () => {
-    const min = Math.floor(timeLeft / 60);
-
-    const sec = timeLeft % 60;
-
-    return `${min}:${sec < 10 ? "0" : ""}${sec}`;
   };
 
   // 🚀 LOADING
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-14 w-14 border-b-4 border-purple-600 mx-auto mb-4"></div>
-
-          <p className="text-gray-600">Generating AI Quiz...</p>
-        </div>
-      </div>
+      <Loader
+        title="Generating AI Quiz"
+        subtitle="Preparing smart CBSE questions for you..."
+      />
     );
   }
 
-  // 🚀 PREMIUM POPUP
+  // 🚀 PREMIUM
   if (showUpgrade) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
@@ -165,7 +158,7 @@ export default function Quiz() {
           </h1>
 
           <p className="text-gray-600 mb-6">
-            You have reached your free daily quiz limit.
+            This quiz type is available only for Pro users.
           </p>
 
           <button
@@ -180,57 +173,73 @@ export default function Quiz() {
   }
 
   return (
-    <div>
-      {/* ⏱ TIMER */}
-      <div className="flex justify-between items-center bg-white p-3 rounded-xl shadow mb-4">
-        <span className="font-medium">⏱️ Time Left</span>
+    <div className="max-w-5xl mx-auto">
+      {/* 🚀 HEADER */}
+      <div className="bg-white rounded-3xl shadow p-5 mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-purple-600">
+            {quizType === "mcq"
+              ? "📘 MCQ Quiz"
+              : quizType === "assertion"
+                ? "🧠 Assertion & Reason"
+                : "📄 Case Study"}
+          </h1>
 
-        <span className="text-red-500 font-bold">{formatTime()}</span>
-      </div>
-
-      {/* 📊 PROGRESS */}
-      <div className="mb-4">
-        <div className="w-full bg-gray-200 h-2 rounded">
-          <div
-            className="bg-purple-600 h-2 rounded"
-            style={{
-              width: `${
-                quiz.length ? (answers.length / quiz.length) * 100 : 0
-              }%`,
-            }}
-          />
+          <p className="text-gray-500 mt-1">
+            {subject}
+            {" • "}
+            {chapter}
+          </p>
         </div>
+
+        <QuizTimer timeLeft={timeLeft} />
       </div>
 
-      {/* ❓ QUESTIONS */}
+      {/* 🚀 QUESTIONS */}
       {quiz.map((q, i) => (
-        <div key={i} className="bg-white p-5 rounded-2xl shadow mb-4">
-          <p className="text-sm text-gray-500 mb-1">Question {i + 1}</p>
+        <div key={i} className="bg-white p-6 rounded-3xl shadow mb-5">
+          <p className="text-sm text-gray-500 mb-2">Question {i + 1}</p>
 
-          <p className="font-semibold">{q.question}</p>
+          {/* 🚀 ASSERTION */}
+          {q.type === "assertion_reason" ? (
+            <div>
+              <p className="font-bold text-purple-600">Assertion (A):</p>
 
-          {q.options.map((opt) => (
-            <button
-              key={opt}
-              onClick={() => handleAnswer(i, opt)}
-              className={`w-full mt-3 p-3 rounded-xl border text-left transition
+              <p className="mb-4">{q.assertion}</p>
 
-                ${
-                  answers[i] === opt
-                    ? "bg-purple-600 text-white shadow-md"
-                    : "bg-gray-50 hover:bg-gray-100"
-                }`}
-            >
-              {opt}
-            </button>
-          ))}
+              <p className="font-bold text-purple-600">Reason (R):</p>
+
+              <p>{q.reason}</p>
+            </div>
+          ) : (
+            <p className="font-semibold text-lg">{q.question}</p>
+          )}
+
+          {/* 🚀 OPTIONS */}
+          <div className="mt-5 space-y-3">
+            {q.options?.map((opt) => (
+              <button
+                key={opt}
+                onClick={() => handleAnswer(i, opt)}
+                className={`w-full p-4 rounded-2xl border text-left transition
+
+                    ${
+                      answers[i] === opt
+                        ? "bg-purple-600 text-white border-purple-600"
+                        : "bg-gray-50 hover:bg-gray-100"
+                    }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
         </div>
       ))}
 
       {/* 🚀 SUBMIT */}
       <button
         onClick={submitQuiz}
-        className="bg-green-500 text-white w-full p-3 rounded-xl shadow-md hover:scale-105 transition"
+        className="bg-green-500 hover:bg-green-600 text-white w-full p-4 rounded-2xl font-bold text-lg transition"
       >
         Submit Quiz
       </button>

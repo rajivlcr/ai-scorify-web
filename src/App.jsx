@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 
 import Dashboard from "./pages/Dashboard";
+import Leaderboard from "./pages/Leaderboard";
 
 import Subjects from "./pages/Subjects";
 
@@ -15,6 +16,7 @@ import Subject from "./pages/Subject";
 import Quiz from "./pages/Quiz";
 
 import Result from "./pages/Result";
+import QuestionTypes from "./pages/QuestionTypes";
 
 import Pricing from "./pages/Pricing";
 
@@ -77,6 +79,15 @@ export default function App() {
           />
 
           <Route path="/pricing" element={<Pricing />} />
+
+          <Route
+            path="/question-types"
+            element={user ? <QuestionTypes /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/leaderboard"
+            element={user ? <Leaderboard /> : <Navigate to="/login" />}
+          />
         </Routes>
       </div>
     </div>
