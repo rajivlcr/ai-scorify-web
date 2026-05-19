@@ -25,22 +25,40 @@ export default function Quiz() {
 
   const { user, setUser } = useAuth();
 
+  // 🚀 STORAGE
+  const className = localStorage.getItem("className");
+
   const subject = localStorage.getItem("subject");
 
   const chapter = localStorage.getItem("chapter");
 
   const quizType = localStorage.getItem("quizType");
 
+  // 🚀 QUIZ TITLE
+  const quizTitles = {
+    mcq: "📘 MCQ Quiz",
+
+    assertion: "🧠 Board Pattern",
+
+    case_study: "📄 Case Study",
+  };
+
   // 🚀 FETCH QUIZ
   useEffect(() => {
     api
-      .post("/quiz/generate", {
-        subject,
+      .post(
+        "/quiz/generate",
 
-        chapter,
+        {
+          className,
 
-        type: quizType,
-      })
+          subject,
+
+          chapter,
+
+          type: quizType,
+        },
+      )
 
       .then((res) => {
         setQuiz(res.data.questions);
@@ -59,13 +77,13 @@ export default function Quiz() {
       })
 
       .catch((err) => {
+        console.log(err);
+
         if (err?.response?.data?.premiumRequired) {
           setShowUpgrade(true);
 
           return;
         }
-
-        console.error(err);
 
         setLoading(false);
       });
@@ -102,17 +120,21 @@ export default function Quiz() {
     try {
       const userId = user?.id || user?.email;
 
-      const res = await api.post("/quiz/submit", {
-        userId,
+      const res = await api.post(
+        "/quiz/submit",
 
-        subject,
+        {
+          userId,
 
-        chapter,
+          subject,
 
-        quiz,
+          chapter,
 
-        answers,
-      });
+          quiz,
+
+          answers,
+        },
+      );
 
       localStorage.setItem(
         "result",
@@ -138,12 +160,12 @@ export default function Quiz() {
     }
   };
 
-  // 🚀 LOADING
+  // 🚀 LOADER
   if (loading) {
     return (
       <Loader
         title="Generating AI Quiz"
-        subtitle="Preparing smart CBSE questions for you..."
+        subtitle="Preparing smart CBSE questions..."
       />
     );
   }
@@ -152,20 +174,22 @@ export default function Quiz() {
   if (showUpgrade) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
-        <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
-          <h1 className="text-2xl font-bold text-purple-600 mb-4">
-            Upgrade to Pro 🚀
+        <div className="bg-white p-10 rounded-[35px] shadow-2xl text-center max-w-md">
+          <div className="text-6xl mb-5">🔒</div>
+
+          <h1 className="text-3xl font-black text-purple-600 mb-4">
+            Upgrade to PRO
           </h1>
 
-          <p className="text-gray-600 mb-6">
-            This quiz type is available only for Pro users.
+          <p className="text-gray-500 mb-8">
+            Unlock board pattern and case study quizzes.
           </p>
 
           <button
             onClick={() => navigate("/pricing")}
-            className="bg-purple-600 text-white px-6 py-3 rounded-xl"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold hover:scale-105 transition"
           >
-            View Plans
+            Upgrade Now 🚀
           </button>
         </div>
       </div>
@@ -173,76 +197,128 @@ export default function Quiz() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* 🚀 HEADER */}
-      <div className="bg-white rounded-3xl shadow p-5 mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-purple-600">
-            {quizType === "mcq"
-              ? "📘 MCQ Quiz"
-              : quizType === "assertion"
-                ? "🧠 Assertion & Reason"
-                : "📄 Case Study"}
-          </h1>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* 🚀 HERO */}
+      <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-purple-600 via-indigo-600 to-violet-600 text-white p-6 md:p-8 shadow-2xl mb-10">
+        {/* 🚀 GLOW */}
+        <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/20 rounded-full blur-3xl"></div>
 
-          <p className="text-gray-500 mt-1">
-            {subject}
-            {" • "}
-            {chapter}
-          </p>
+        {/* 🚀 CONTENT */}
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-5 py-2 rounded-full text-sm font-semibold mb-5">
+              🚀 AI Powered Quiz
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-black">
+              {quizTitles[quizType]}
+            </h1>
+
+            <p className="mt-4 text-white/90 text-lg capitalize">
+              {className}
+              {" • "}
+              {subject}
+              {" • "}
+              {chapter}
+            </p>
+          </div>
+
+          {/* 🚀 TIMER */}
+          <div className="bg-white/20 backdrop-blur-xl rounded-[28px] p-5">
+            <QuizTimer timeLeft={timeLeft} />
+          </div>
         </div>
-
-        <QuizTimer timeLeft={timeLeft} />
       </div>
 
       {/* 🚀 QUESTIONS */}
-      {quiz.map((q, i) => (
-        <div key={i} className="bg-white p-6 rounded-3xl shadow mb-5">
-          <p className="text-sm text-gray-500 mb-2">Question {i + 1}</p>
+      <div className="space-y-8">
+        {quiz.map((q, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-[35px] shadow-lg border border-gray-100 overflow-hidden"
+          >
+            {/* 🚀 TOP BAR */}
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
+              <div className="text-white font-bold text-lg">
+                Question {i + 1}
+              </div>
 
-          {/* 🚀 ASSERTION */}
-          {q.type === "assertion_reason" ? (
-            <div>
-              <p className="font-bold text-purple-600">Assertion (A):</p>
-
-              <p className="mb-4">{q.assertion}</p>
-
-              <p className="font-bold text-purple-600">Reason (R):</p>
-
-              <p>{q.reason}</p>
+              <div className="bg-white/20 text-white px-4 py-1 rounded-full text-sm">
+                AI Generated
+              </div>
             </div>
-          ) : (
-            <p className="font-semibold text-lg">{q.question}</p>
-          )}
 
-          {/* 🚀 OPTIONS */}
-          <div className="mt-5 space-y-3">
-            {q.options?.map((opt) => (
-              <button
-                key={opt}
-                onClick={() => handleAnswer(i, opt)}
-                className={`w-full p-4 rounded-2xl border text-left transition
+            {/* 🚀 BODY */}
+            <div className="p-7">
+              {/* 🚀 ASSERTION */}
+              {q.type === "assertion_reason" ? (
+                <div>
+                  <div className="bg-purple-50 rounded-2xl p-5 mb-5">
+                    <p className="font-bold text-purple-600 mb-2">
+                      Assertion (A)
+                    </p>
 
-                    ${
-                      answers[i] === opt
-                        ? "bg-purple-600 text-white border-purple-600"
-                        : "bg-gray-50 hover:bg-gray-100"
-                    }`}
-              >
-                {opt}
-              </button>
-            ))}
+                    <p className="text-gray-700 leading-relaxed">
+                      {q.assertion}
+                    </p>
+                  </div>
+
+                  <div className="bg-indigo-50 rounded-2xl p-5">
+                    <p className="font-bold text-indigo-600 mb-2">Reason (R)</p>
+
+                    <p className="text-gray-700 leading-relaxed">{q.reason}</p>
+                  </div>
+                </div>
+              ) : (
+                <h2 className="text-2xl font-bold text-gray-800 leading-relaxed">
+                  {q.question}
+                </h2>
+              )}
+
+              {/* 🚀 OPTIONS */}
+              <div className="mt-8 space-y-4">
+                {q.options?.map((opt, idx) => (
+                  <button
+                    key={opt}
+                    onClick={() => handleAnswer(i, opt)}
+                    className={`w-full p-5 rounded-2xl border-2 text-left transition-all duration-300 flex items-center gap-4
+
+                        ${
+                          answers[i] === opt
+                            ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-transparent shadow-lg scale-[1.01]"
+                            : "bg-gray-50 hover:bg-purple-50 border-gray-200 hover:border-purple-300"
+                        }`}
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold
+
+                          ${
+                            answers[i] === opt
+                              ? "bg-white/20"
+                              : "bg-white border"
+                          }`}
+                    >
+                      {String.fromCharCode(65 + idx)}
+                    </div>
+
+                    <span className="text-lg leading-relaxed">{opt}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {/* 🚀 SUBMIT */}
-      <button
-        onClick={submitQuiz}
-        className="bg-green-500 hover:bg-green-600 text-white w-full p-4 rounded-2xl font-bold text-lg transition"
-      >
-        Submit Quiz
-      </button>
+      <div className="sticky bottom-5 mt-10">
+        <button
+          onClick={submitQuiz}
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-5 rounded-[28px] text-xl font-black shadow-2xl hover:scale-[1.01] transition-all duration-300"
+        >
+          Submit Quiz 🚀
+        </button>
+      </div>
     </div>
   );
 }

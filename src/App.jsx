@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import Classes from "./pages/Classes";
 
 import Login from "./pages/Login";
 
@@ -58,6 +59,10 @@ export default function App() {
             element={user ? <Dashboard /> : <Navigate to="/login" />}
           />
 
+          <Route
+            path="/classes"
+            element={user ? <Classes /> : <Navigate to="/login" />}
+          />
           <Route
             path="/subjects"
             element={user ? <Subjects /> : <Navigate to="/login" />}

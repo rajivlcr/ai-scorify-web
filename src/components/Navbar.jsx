@@ -30,7 +30,7 @@ export default function Navbar() {
             Dashboard
           </Link>
 
-          <Link to="/subjects" className="hover:text-purple-600 transition">
+          <Link to="/classes" className="hover:text-purple-600 transition">
             Subjects
           </Link>
 
