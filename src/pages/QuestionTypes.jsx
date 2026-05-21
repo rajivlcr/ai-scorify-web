@@ -1,65 +1,51 @@
-import { useNavigate } from "react-router-dom";
-
-import { useAuth } from "../context/AuthContext";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function QuestionTypes() {
   const navigate = useNavigate();
 
-  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
 
-  const chapter = localStorage.getItem("chapter");
+  const className = searchParams.get("className");
 
-  const subject = localStorage.getItem("subject");
+  const subject = searchParams.get("subject");
 
-  const className = localStorage.getItem("className");
+  const chapter = searchParams.get("chapter");
 
-  const types = [
+  const questionTypes = [
     {
+      type: "mcq",
+
       title: "MCQ Quiz",
-
-      value: "mcq",
-
-      emoji: "📘",
-
-      gradient: "from-blue-500 via-cyan-500 to-sky-500",
-
-      questions: "15 Questions",
-
-      desc: "Practice AI-generated multiple choice questions from textbook concepts.",
-
-      premium: false,
-    },
-
-    {
-      title: "Board Pattern",
-
-      value: "assertion",
 
       emoji: "🧠",
 
-      gradient: "from-purple-500 via-violet-500 to-indigo-600",
+      color: "from-blue-500 to-cyan-500",
 
-      questions: "10 Questions",
-
-      desc: "Assertion & reasoning questions designed for CBSE board preparation.",
-
-      premium: true,
+      desc: "Practice AI-generated multiple choice questions.",
     },
 
     {
+      type: "assertion",
+
+      title: "Assertion & Reason",
+
+      emoji: "⚡",
+
+      color: "from-purple-600 to-indigo-600",
+
+      desc: "Board-exam style reasoning questions.",
+    },
+
+    {
+      type: "case-study",
+
       title: "Case Study",
 
-      value: "case_study",
+      emoji: "📚",
 
-      emoji: "📄",
+      color: "from-pink-500 to-rose-500",
 
-      gradient: "from-orange-500 via-red-500 to-pink-500",
-
-      questions: "2 Case Studies",
-
-      desc: "Application-based AI case studies with real exam style questions.",
-
-      premium: true,
+      desc: "Advanced competency-based case study questions.",
     },
   ];
 
@@ -67,146 +53,57 @@ export default function QuestionTypes() {
     <div className="min-h-screen max-w-7xl mx-auto px-4 py-10">
       {/* 🚀 HERO */}
       <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-600 px-5 py-2 rounded-full text-sm font-semibold mb-5">
-          🚀 AI Powered Practice
+        <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-600 px-5 py-2 rounded-full text-sm font-semibold mb-6">
+          🚀 AI Quiz Modes
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-          Choose Quiz Type
+        <h1 className="text-5xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          Choose Question Type
         </h1>
 
-        <p className="text-gray-500 text-lg mt-4 max-w-3xl mx-auto">
-          {className?.toUpperCase()}
-          {" • "}
-          {subject}
-          {" • "}
-          {chapter}
+        <p className="text-gray-500 text-lg mt-5 max-w-2xl mx-auto">
+          Practice smarter with AI-generated quizzes designed for CBSE exams.
         </p>
       </div>
 
       {/* 🚀 GRID */}
       <div className="grid md:grid-cols-3 gap-8">
-        {types.map((type, index) => {
-          const locked = type.premium && user?.plan !== "pro";
+        {questionTypes.map((q, index) => (
+          <div
+            key={index}
+            onClick={() => {
+              navigate(
+                `/quiz?className=${className}&subject=${subject}&chapter=${chapter}&type=${q.type}`,
+              );
+            }}
+            className="group relative overflow-hidden rounded-[35px] cursor-pointer hover:-translate-y-2 transition-all duration-500 shadow-2xl"
+          >
+            {/* 🚀 BG */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${q.color}`} />
 
-          return (
-            <div
-              key={type.value}
-              onClick={() => {
-                if (locked) {
-                  navigate("/pricing");
+            {/* 🚀 GLOW */}
+            <div className="absolute -top-10 -right-10 w-52 h-52 bg-white/20 rounded-full blur-3xl"></div>
 
-                  return;
-                }
+            {/* 🚀 CONTENT */}
+            <div className="relative z-10 p-8 text-white min-h-[320px] flex flex-col justify-between">
+              <div>
+                <div className="text-7xl mb-6">{q.emoji}</div>
 
-                localStorage.setItem(
-                  "quizType",
+                <h2 className="text-3xl font-black">{q.title}</h2>
 
-                  type.value,
-                );
-
-                navigate("/quiz");
-              }}
-              className={`group relative overflow-hidden rounded-[35px] transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl
-
-                ${locked ? "cursor-pointer opacity-90" : "cursor-pointer"}`}
-            >
-              {/* 🚀 BG */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${type.gradient}`}
-              />
-
-              {/* 🚀 GLOW */}
-              <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/20 rounded-full blur-3xl"></div>
-
-              {/* 🚀 CONTENT */}
-              <div className="relative z-10 p-8 min-h-[350px] flex flex-col justify-between text-white">
-                {/* 🚀 TOP */}
-                <div className="flex items-start justify-between">
-                  <div className="text-7xl">{type.emoji}</div>
-
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold">
-                      {type.questions}
-                    </div>
-
-                    {locked && (
-                      <div className="bg-yellow-400 text-black px-4 py-1 rounded-full text-xs font-bold">
-                        PRO
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* 🚀 CENTER */}
-                <div>
-                  <p className="uppercase tracking-[4px] text-sm opacity-80">
-                    AI Generated
-                  </p>
-
-                  <h2 className="text-4xl font-black mt-3">{type.title}</h2>
-
-                  <p className="mt-5 text-white/90 text-lg leading-relaxed">
-                    {type.desc}
-                  </p>
-                </div>
-
-                {/* 🚀 FOOTER */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm opacity-80">Smart Practice</p>
-
-                    <p className="font-semibold text-lg mt-1">
-                      {locked ? "Unlock PRO →" : "Start Quiz →"}
-                    </p>
-                  </div>
-
-                  <div className="w-16 h-16 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl group-hover:translate-x-1 transition">
-                    {locked ? "🔒" : "→"}
-                  </div>
-                </div>
+                <p className="mt-5 text-white/90 leading-relaxed">{q.desc}</p>
               </div>
 
-              {/* 🚀 BIG NUMBER */}
-              <div className="absolute bottom-2 right-6 text-white/10 text-[140px] font-black leading-none">
-                0{index + 1}
+              <div className="flex items-center justify-between mt-8">
+                <span className="font-bold text-lg">Start Quiz →</span>
+
+                <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl group-hover:translate-x-1 transition">
+                  →
+                </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* 🚀 INFO SECTION */}
-      <div className="mt-14 grid md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-          <div className="text-4xl mb-4">⚡</div>
-
-          <h3 className="text-xl font-bold">AI Generated Questions</h3>
-
-          <p className="text-gray-500 mt-3">
-            Fresh question pools generated dynamically from textbook content.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-          <div className="text-4xl mb-4">🧠</div>
-
-          <h3 className="text-xl font-bold">Board Pattern Focus</h3>
-
-          <p className="text-gray-500 mt-3">
-            Assertion and case study formats aligned with CBSE exams.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-          <div className="text-4xl mb-4">🏆</div>
-
-          <h3 className="text-xl font-bold">XP & Leaderboard</h3>
-
-          <p className="text-gray-500 mt-3">
-            Earn XP, maintain streaks and compete with other students.
-          </p>
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

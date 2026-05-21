@@ -44,6 +44,8 @@ export default function Dashboard() {
       gradient: "from-blue-500 to-cyan-500",
 
       path: "/classes",
+
+      premium: false,
     },
 
     {
@@ -54,6 +56,8 @@ export default function Dashboard() {
       gradient: "from-purple-500 to-indigo-600",
 
       path: "/classes",
+
+      premium: true,
     },
 
     {
@@ -64,6 +68,8 @@ export default function Dashboard() {
       gradient: "from-orange-500 to-red-500",
 
       path: "/classes",
+
+      premium: true,
     },
 
     {
@@ -74,6 +80,8 @@ export default function Dashboard() {
       gradient: "from-green-500 to-emerald-500",
 
       path: "/leaderboard",
+
+      premium: false,
     },
   ];
 
@@ -149,7 +157,15 @@ export default function Dashboard() {
           {quickActions.map((action, index) => (
             <div
               key={index}
-              onClick={() => navigate(action.path)}
+              onClick={() => {
+                if (action.premium && user?.plan === "free") {
+                  navigate("/pricing");
+
+                  return;
+                }
+
+                navigate(action.path);
+              }}
               className="group relative overflow-hidden rounded-[28px] cursor-pointer hover:-translate-y-2 transition-all duration-500 shadow-lg hover:shadow-2xl"
             >
               {/* 🚀 BG */}
@@ -162,7 +178,15 @@ export default function Dashboard() {
 
               {/* 🚀 CONTENT */}
               <div className="relative z-10 p-6 text-white min-h-[190px] flex flex-col justify-between">
-                <div className="text-5xl">{action.emoji}</div>
+                <div className="flex items-start justify-between">
+                  <div className="text-5xl">{action.emoji}</div>
+
+                  {action.premium && (
+                    <div className="bg-yellow-300 text-black px-3 py-1 rounded-full text-xs font-black">
+                      PRO
+                    </div>
+                  )}
+                </div>
 
                 <div>
                   <h3 className="text-2xl font-black">{action.title}</h3>

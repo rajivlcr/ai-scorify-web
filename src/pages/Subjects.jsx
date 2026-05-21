@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import api from "../services/api";
 
 export default function Subjects() {
   const navigate = useNavigate();
 
+  const { className } = useParams();
+
   const [subjects, setSubjects] = useState([]);
 
   const [loading, setLoading] = useState(true);
-
-  const className = localStorage.getItem("className");
 
   // 🚀 SUBJECT CONFIG
   const subjectConfig = {
@@ -51,6 +51,7 @@ export default function Subjects() {
   // 🚀 FETCH SUBJECTS
   useEffect(() => {
     api
+
       .get(`/syllabus/subjects/${className}`)
 
       .then((res) => {
@@ -64,7 +65,7 @@ export default function Subjects() {
 
         setLoading(false);
       });
-  }, []);
+  }, [className]);
 
   // 🚀 LOADING
   if (loading) {
@@ -120,13 +121,7 @@ export default function Subjects() {
             <div
               key={subject}
               onClick={() => {
-                localStorage.setItem(
-                  "subject",
-
-                  subject,
-                );
-
-                navigate(`/subject/${subject}`);
+                navigate(`/subject/${className}/${subject}`);
               }}
               className="group relative overflow-hidden rounded-[40px] cursor-pointer transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
             >

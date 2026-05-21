@@ -53,13 +53,7 @@ export default function Classes() {
           <div
             key={c.value}
             onClick={() => {
-              localStorage.setItem(
-                "className",
-
-                c.value,
-              );
-
-              navigate("/subjects");
+              navigate(`/subjects/${c.value}`);
             }}
             className="group relative overflow-hidden rounded-[40px] cursor-pointer transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
           >

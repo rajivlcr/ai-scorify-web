@@ -4,6 +4,8 @@ import Navbar from "./components/Navbar";
 
 import FloatingSupport from "./components/FloatingSupport";
 
+import Footer from "./components/Footer";
+
 // 🚀 PAGES
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -22,6 +24,12 @@ import Contact from "./pages/Contact";
 import Feedback from "./pages/Feedback";
 import ReportBug from "./pages/ReportBug";
 import HelpCenter from "./pages/HelpCenter";
+
+// 🚀 POLICY PAGES
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
+import RefundPolicy from "./pages/RefundPolicy";
+import CancellationPolicy from "./pages/CancellationPolicy";
 
 // 🚀 AUTH
 import { useAuth } from "./context/AuthContext";
@@ -178,6 +186,18 @@ export default function App() {
           }
         />
 
+        {/* 🚀 PRIVACY POLICY */}
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+        {/* 🚀 TERMS */}
+        <Route path="/terms" element={<Terms />} />
+
+        {/* 🚀 REFUND */}
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+
+        {/* 🚀 CANCELLATION */}
+        <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+
         {/* 🚀 DEFAULT */}
         <Route
           path="*"
@@ -187,6 +207,9 @@ export default function App() {
 
       {/* 🚀 FLOATING SUPPORT */}
       {user && <FloatingSupport />}
+
+      {/* 🚀 FOOTER */}
+      <Footer />
     </div>
   );
 }
