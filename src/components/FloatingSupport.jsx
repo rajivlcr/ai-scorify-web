@@ -16,7 +16,7 @@ export default function FloatingSupport() {
         <div className="mb-4 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
           {/* 🚀 WHATSAPP */}
           <a
-            href="https://wa.me/919999999999?text=Hi%20AI%20Scorify,%20I%20need%20help"
+            href="https://wa.me/919344082314?text=Hi%20AI%20Scorify,%20I%20need%20help"
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-4 bg-green-500 hover:bg-green-600 text-white px-5 py-4 rounded-2xl shadow-2xl transition-all hover:scale-105"
