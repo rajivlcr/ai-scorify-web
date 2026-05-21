@@ -1,100 +1,192 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-import Classes from "./pages/Classes";
 
+import FloatingSupport from "./components/FloatingSupport";
+
+// 🚀 PAGES
 import Login from "./pages/Login";
-
 import Register from "./pages/Register";
-
 import Dashboard from "./pages/Dashboard";
+import Classes from "./pages/Classes";
+import Subjects from "./pages/Subjects";
+import Subject from "./pages/Subject";
+import QuestionTypes from "./pages/QuestionTypes";
+import Quiz from "./pages/Quiz";
+import Result from "./pages/Result";
+import Pricing from "./pages/Pricing";
 import Leaderboard from "./pages/Leaderboard";
 
-import Subjects from "./pages/Subjects";
+// 🚀 SUPPORT PAGES
+import Contact from "./pages/Contact";
+import Feedback from "./pages/Feedback";
+import ReportBug from "./pages/ReportBug";
+import HelpCenter from "./pages/HelpCenter";
 
-import Subject from "./pages/Subject";
-
-import Quiz from "./pages/Quiz";
-
-import Result from "./pages/Result";
-import QuestionTypes from "./pages/QuestionTypes";
-
-import Pricing from "./pages/Pricing";
-
+// 🚀 AUTH
 import { useAuth } from "./context/AuthContext";
+
+function PrivateRoute({ children }) {
+  const { user } = useAuth();
+
+  return user ? children : <Navigate to="/login" />;
+}
 
 export default function App() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* 🚀 GLOBAL NAVBAR */}
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+      {/* 🚀 NAVBAR */}
+      {user && <Navbar />}
 
-      {/* 🚀 PAGE CONTENT */}
-      <div className="max-w-7xl mx-auto p-4">
-        <Routes>
-          {/* 🚀 AUTO REDIRECT */}
-          <Route
-            path="/"
-            element={
-              user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
-            }
-          />
+      {/* 🚀 ROUTES */}
+      <Routes>
+        {/* 🚀 LOGIN */}
+        <Route path="/login" element={<Login />} />
 
-          {/* 🔓 AUTH */}
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/dashboard" /> : <Login />}
-          />
+        {/* 🚀 REGISTER */}
+        <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/register"
-            element={user ? <Navigate to="/dashboard" /> : <Register />}
-          />
+        {/* 🚀 DASHBOARD */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
 
-          {/* 🔐 PROTECTED */}
-          <Route
-            path="/dashboard"
-            element={user ? <Dashboard /> : <Navigate to="/login" />}
-          />
+        {/* 🚀 CLASSES */}
+        <Route
+          path="/classes"
+          element={
+            <PrivateRoute>
+              <Classes />
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/classes"
-            element={user ? <Classes /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/subjects"
-            element={user ? <Subjects /> : <Navigate to="/login" />}
-          />
+        {/* 🚀 SUBJECTS */}
+        <Route
+          path="/subjects/:className"
+          element={
+            <PrivateRoute>
+              <Subjects />
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/subject/:name"
-            element={user ? <Subject /> : <Navigate to="/login" />}
-          />
+        {/* 🚀 CHAPTERS */}
+        <Route
+          path="/subject/:className/:subject"
+          element={
+            <PrivateRoute>
+              <Subject />
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/quiz"
-            element={user ? <Quiz /> : <Navigate to="/login" />}
-          />
+        {/* 🚀 QUESTION TYPES */}
+        <Route
+          path="/question-types"
+          element={
+            <PrivateRoute>
+              <QuestionTypes />
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/result"
-            element={user ? <Result /> : <Navigate to="/login" />}
-          />
+        {/* 🚀 QUIZ */}
+        <Route
+          path="/quiz"
+          element={
+            <PrivateRoute>
+              <Quiz />
+            </PrivateRoute>
+          }
+        />
 
-          <Route path="/pricing" element={<Pricing />} />
+        {/* 🚀 RESULT */}
+        <Route
+          path="/result"
+          element={
+            <PrivateRoute>
+              <Result />
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/question-types"
-            element={user ? <QuestionTypes /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/leaderboard"
-            element={user ? <Leaderboard /> : <Navigate to="/login" />}
-          />
-        </Routes>
-      </div>
+        {/* 🚀 PRICING */}
+        <Route
+          path="/pricing"
+          element={
+            <PrivateRoute>
+              <Pricing />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 🚀 LEADERBOARD */}
+        <Route
+          path="/leaderboard"
+          element={
+            <PrivateRoute>
+              <Leaderboard />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 🚀 CONTACT */}
+        <Route
+          path="/contact"
+          element={
+            <PrivateRoute>
+              <Contact />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 🚀 FEEDBACK */}
+        <Route
+          path="/feedback"
+          element={
+            <PrivateRoute>
+              <Feedback />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 🚀 BUG REPORT */}
+        <Route
+          path="/report-bug"
+          element={
+            <PrivateRoute>
+              <ReportBug />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 🚀 HELP CENTER */}
+        <Route
+          path="/help-center"
+          element={
+            <PrivateRoute>
+              <HelpCenter />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 🚀 DEFAULT */}
+        <Route
+          path="*"
+          element={<Navigate to={user ? "/dashboard" : "/login"} />}
+        />
+      </Routes>
+
+      {/* 🚀 FLOATING SUPPORT */}
+      {user && <FloatingSupport />}
     </div>
   );
 }

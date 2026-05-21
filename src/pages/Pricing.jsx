@@ -16,7 +16,7 @@ export default function Pricing() {
       const { data } = await api.post("/payment/create-order");
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY,
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
 
         amount: data.amount,
 
@@ -28,24 +28,29 @@ export default function Pricing() {
 
         order_id: data.id,
 
+        // 🚀 SUCCESS
         handler: async (response) => {
           try {
-            // 🚀 VERIFY PAYMENT
+            // 🚀 VERIFY
             const res = await api.post(
               "/payment/verify",
 
-              response,
+              {
+                userId: user._id || user.id,
+
+                razorpay_order_id: response.razorpay_order_id,
+
+                razorpay_payment_id: response.razorpay_payment_id,
+
+                razorpay_signature: response.razorpay_signature,
+              },
             );
 
+            // 🚀 SUCCESS
             if (res.data.success) {
-              // 🚀 UPDATE USER
-              const updatedUser = {
-                ...user,
+              const updatedUser = res.data.user;
 
-                plan: "pro",
-              };
-
-              // 🚀 SAVE LOCAL
+              // 🚀 SAVE USER
               localStorage.setItem(
                 "user",
 
@@ -55,7 +60,7 @@ export default function Pricing() {
               // 🚀 UPDATE CONTEXT
               setUser(updatedUser);
 
-              alert("Payment successful 🚀");
+              alert("Payment Successful 🚀");
 
               navigate("/dashboard");
             }
@@ -77,6 +82,7 @@ export default function Pricing() {
         },
       };
 
+      // 🚀 OPEN RAZORPAY
       const razorpay = new window.Razorpay(options);
 
       razorpay.open();
@@ -88,10 +94,10 @@ export default function Pricing() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-12">
+    <div className="max-w-6xl mx-auto py-12 px-4">
       {/* 🚀 HEADER */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold text-purple-600">
+        <h1 className="text-5xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
           Upgrade to PRO 🚀
         </h1>
 
@@ -103,19 +109,19 @@ export default function Pricing() {
       {/* 🚀 PLANS */}
       <div className="grid md:grid-cols-2 gap-8">
         {/* 🚀 FREE */}
-        <div className="bg-white rounded-3xl shadow-lg p-8 border border-gray-100">
-          <h2 className="text-3xl font-bold text-gray-800">Free Plan</h2>
+        <div className="bg-white rounded-[35px] shadow-lg p-8 border border-gray-100">
+          <h2 className="text-3xl font-black text-gray-800">Free Plan</h2>
 
           <p className="text-gray-500 mt-2">Perfect for trying AI Scorify</p>
 
           <div className="mt-8">
-            <span className="text-5xl font-bold">₹0</span>
+            <span className="text-5xl font-black">₹0</span>
 
             <span className="text-gray-500">/month</span>
           </div>
 
           <ul className="mt-8 space-y-4 text-gray-600">
-            <li>✅ 3 quizzes per day</li>
+            <li>✅ 5 quizzes per day</li>
 
             <li>✅ MCQ only</li>
 
@@ -135,18 +141,21 @@ export default function Pricing() {
         </div>
 
         {/* 🚀 PRO */}
-        <div className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-[35px] shadow-2xl p-8 relative overflow-hidden">
+          {/* 🚀 GLOW */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
+
           {/* 🚀 BADGE */}
-          <div className="absolute top-5 right-5 bg-white text-purple-600 px-4 py-2 rounded-full text-sm font-bold">
+          <div className="absolute top-5 right-5 bg-white text-purple-600 px-4 py-2 rounded-full text-sm font-bold shadow">
             MOST POPULAR
           </div>
 
-          <h2 className="text-3xl font-bold">Pro Plan</h2>
+          <h2 className="text-3xl font-black">Pro Plan</h2>
 
           <p className="opacity-90 mt-2">Best for serious students 🚀</p>
 
           <div className="mt-8">
-            <span className="text-5xl font-bold">₹99</span>
+            <span className="text-5xl font-black">₹99</span>
 
             <span className="opacity-80">/month</span>
           </div>
@@ -166,7 +175,7 @@ export default function Pricing() {
           </ul>
 
           {/* 🚀 BUTTON */}
-          {user?.plan === "pro" ? (
+          {user?.plan?.toLowerCase() === "pro" ? (
             <button
               disabled
               className="w-full mt-10 bg-white/20 py-4 rounded-2xl font-bold cursor-not-allowed"
@@ -176,7 +185,7 @@ export default function Pricing() {
           ) : (
             <button
               onClick={handlePayment}
-              className="w-full mt-10 bg-white text-purple-600 py-4 rounded-2xl font-bold hover:scale-105 transition"
+              className="w-full mt-10 bg-white text-purple-600 py-4 rounded-2xl font-black hover:scale-105 transition-all duration-300 shadow-xl"
             >
               Upgrade Now 🚀
             </button>
