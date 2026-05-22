@@ -9,15 +9,16 @@ export default function Quiz() {
 
   const location = useLocation();
 
-  const {
-    className,
+  // 🚀 QUERY PARAMS
+  const params = new URLSearchParams(location.search);
 
-    subject,
+  const className = params.get("className");
 
-    chapter,
+  const subject = params.get("subject");
 
-    type,
-  } = location.state || {};
+  const chapter = params.get("chapter");
+
+  const type = params.get("type");
 
   const [loading, setLoading] = useState(true);
 

@@ -84,7 +84,7 @@ export default function Subject() {
             key={index}
             onClick={() => {
               navigate(
-                `/question-types?className=${className}&subject=${subject}&chapter=${chapter}`,
+                `/question-types?className=${className}&subject=${subject}&chapter=${encodeURIComponent(chapter)}`,
               );
             }}
             className="group cursor-pointer bg-white rounded-[32px] p-8 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 relative overflow-hidden"

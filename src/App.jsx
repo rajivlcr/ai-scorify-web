@@ -18,6 +18,7 @@ import Quiz from "./pages/Quiz";
 import Result from "./pages/Result";
 import Pricing from "./pages/Pricing";
 import Leaderboard from "./pages/Leaderboard";
+import Admin from "./pages/Admin";
 
 // 🚀 SUPPORT PAGES
 import Contact from "./pages/Contact";
@@ -34,12 +35,30 @@ import CancellationPolicy from "./pages/CancellationPolicy";
 // 🚀 AUTH
 import { useAuth } from "./context/AuthContext";
 
+// 🚀 PRIVATE ROUTE
 function PrivateRoute({ children }) {
   const { user } = useAuth();
 
   return user ? children : <Navigate to="/login" />;
 }
 
+// 🚀 ADMIN ROUTE
+function AdminRoute({ children }) {
+  const { user } = useAuth();
+
+  // 🚀 WAIT
+  if (user === null) {
+    return null;
+  }
+
+  // 🚀 ADMIN
+  if (user?.role === "admin") {
+    return children;
+  }
+
+  // 🚀 REDIRECT
+  return <Navigate to="/dashboard" />;
+}
 export default function App() {
   const { user } = useAuth();
 
@@ -143,6 +162,16 @@ export default function App() {
             <PrivateRoute>
               <Leaderboard />
             </PrivateRoute>
+          }
+        />
+
+        {/* 🚀 ADMIN */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <Admin />
+            </AdminRoute>
           }
         />
 
