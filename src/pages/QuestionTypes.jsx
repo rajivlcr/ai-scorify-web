@@ -5,7 +5,6 @@ export default function QuestionTypes() {
 
   const location = useLocation();
 
-  // 🚀 QUERY PARAMS
   const params = new URLSearchParams(location.search);
 
   const className = params.get("className");
@@ -14,55 +13,48 @@ export default function QuestionTypes() {
 
   const chapter = params.get("chapter");
 
-  // 🚀 TYPES
   const types = [
     {
       title: "MCQ Quiz",
-
       type: "mcq",
-
       emoji: "📘",
-
       gradient: "from-blue-500 to-cyan-500",
-
-      desc: "AI-generated multiple choice questions",
+      desc: "Unlimited MCQ practice for free",
+      locked: false,
     },
 
     {
       title: "Assertion & Reason",
-
       type: "assertion",
-
-      emoji: "🧠",
-
-      gradient: "from-purple-500 to-indigo-600",
-
-      desc: "Board pattern assertion questions",
+      emoji: "🔒",
+      gradient: "from-gray-500 to-gray-600",
+      desc: "Register to unlock",
+      locked: true,
     },
 
     {
       title: "Case Study",
-
       type: "case-study",
-
-      emoji: "📄",
-
-      gradient: "from-orange-500 to-red-500",
-
-      desc: "CBSE case study practice",
+      emoji: "🔒",
+      gradient: "from-gray-500 to-gray-600",
+      desc: "Register to unlock",
+      locked: true,
     },
   ];
 
-  // 🚀 OPEN QUIZ
-  const startQuiz = (type) => {
+  const startQuiz = (item) => {
+    if (item.locked) {
+      navigate("/register");
+      return;
+    }
+
     navigate(
-      `/quiz?className=${className}&subject=${subject}&chapter=${chapter}&type=${type}`,
+      `/quiz?className=${className}&subject=${subject}&chapter=${chapter}&type=${item.type}`,
     );
   };
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 py-10">
-      {/* 🚀 HEADER */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-600 px-5 py-2 rounded-full text-sm font-semibold mb-6">
           🚀 AI Powered Quiz Modes
@@ -72,32 +64,30 @@ export default function QuestionTypes() {
           Choose Question Type
         </h1>
 
-        <p className="text-gray-500 text-lg mt-5">{chapter}</p>
+        <p className="text-gray-500 text-lg mt-5">
+          {decodeURIComponent(chapter || "")}
+        </p>
       </div>
 
-      {/* 🚀 CARDS */}
       <div className="grid md:grid-cols-3 gap-8">
         {types.map((item, index) => (
           <div
             key={index}
-            onClick={() => startQuiz(item.type)}
+            onClick={() => startQuiz(item)}
             className="group relative overflow-hidden rounded-[35px] cursor-pointer hover:-translate-y-3 transition-all duration-500 shadow-xl hover:shadow-2xl"
           >
-            {/* 🚀 BG */}
             <div
               className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`}
             />
 
-            {/* 🚀 GLOW */}
             <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/20 rounded-full blur-3xl" />
 
-            {/* 🚀 CONTENT */}
             <div className="relative z-10 p-8 min-h-[320px] text-white flex flex-col justify-between">
               <div className="flex items-start justify-between">
                 <div className="text-6xl">{item.emoji}</div>
 
                 <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-bold">
-                  AI
+                  {item.locked ? "LOCKED" : "FREE"}
                 </div>
               </div>
 
@@ -111,9 +101,13 @@ export default function QuestionTypes() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm opacity-80">Start Practice</p>
+                  <p className="text-sm opacity-80">
+                    {item.locked ? "Create Account" : "Start Practice"}
+                  </p>
 
-                  <p className="font-bold text-lg mt-1">Continue →</p>
+                  <p className="font-bold text-lg mt-1">
+                    {item.locked ? "Register →" : "Continue →"}
+                  </p>
                 </div>
 
                 <div className="w-16 h-16 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl group-hover:translate-x-1 transition">
@@ -123,6 +117,22 @@ export default function QuestionTypes() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-8 text-white text-center">
+        <h2 className="text-3xl font-black">Register to Unlock Everything</h2>
+
+        <p className="mt-4 text-white/90">
+          Access all chapters, leaderboard, XP, streaks, assertion & reason, and
+          case study questions.
+        </p>
+
+        <button
+          onClick={() => navigate("/register")}
+          className="mt-6 bg-white text-purple-700 px-8 py-4 rounded-2xl font-bold"
+        >
+          Register Free
+        </button>
       </div>
     </div>
   );

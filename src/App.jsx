@@ -1,9 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-
 import FloatingSupport from "./components/FloatingSupport";
-
 import Footer from "./components/Footer";
 
 // 🚀 PAGES
@@ -46,26 +44,24 @@ function PrivateRoute({ children }) {
 function AdminRoute({ children }) {
   const { user } = useAuth();
 
-  // 🚀 WAIT
   if (user === null) {
     return null;
   }
 
-  // 🚀 ADMIN
   if (user?.role === "admin") {
     return children;
   }
 
-  // 🚀 REDIRECT
   return <Navigate to="/dashboard" />;
 }
+
 export default function App() {
   const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
       {/* 🚀 NAVBAR */}
-      {user && <Navbar />}
+      <Navbar />
 
       {/* 🚀 ROUTES */}
       <Routes>
@@ -85,75 +81,22 @@ export default function App() {
           }
         />
 
-        {/* 🚀 CLASSES */}
-        <Route
-          path="/classes"
-          element={
-            <PrivateRoute>
-              <Classes />
-            </PrivateRoute>
-          }
-        />
+        {/* 🚀 GUEST ACCESS */}
+        <Route path="/classes" element={<Classes />} />
 
-        {/* 🚀 SUBJECTS */}
-        <Route
-          path="/subjects/:className"
-          element={
-            <PrivateRoute>
-              <Subjects />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/subjects/:className" element={<Subjects />} />
 
-        {/* 🚀 CHAPTERS */}
-        <Route
-          path="/subject/:className/:subject"
-          element={
-            <PrivateRoute>
-              <Subject />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/subject/:className/:subject" element={<Subject />} />
 
-        {/* 🚀 QUESTION TYPES */}
-        <Route
-          path="/question-types"
-          element={
-            <PrivateRoute>
-              <QuestionTypes />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/question-types" element={<QuestionTypes />} />
 
-        {/* 🚀 QUIZ */}
-        <Route
-          path="/quiz"
-          element={
-            <PrivateRoute>
-              <Quiz />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/quiz" element={<Quiz />} />
 
-        {/* 🚀 RESULT */}
-        <Route
-          path="/result"
-          element={
-            <PrivateRoute>
-              <Result />
-            </PrivateRoute>
-          }
-        />
+        {/* 🚀 RESULT (PUBLIC FOR GUESTS) */}
+        <Route path="/result" element={<Result />} />
 
-        {/* 🚀 PRICING */}
-        <Route
-          path="/pricing"
-          element={
-            <PrivateRoute>
-              <Pricing />
-            </PrivateRoute>
-          }
-        />
+        {/* 🚀 PRICING (PUBLIC) */}
+        <Route path="/pricing" element={<Pricing />} />
 
         {/* 🚀 LEADERBOARD */}
         <Route
@@ -221,20 +164,20 @@ export default function App() {
         {/* 🚀 TERMS */}
         <Route path="/terms" element={<Terms />} />
 
-        {/* 🚀 REFUND */}
+        {/* 🚀 REFUND POLICY */}
         <Route path="/refund-policy" element={<RefundPolicy />} />
 
-        {/* 🚀 CANCELLATION */}
+        {/* 🚀 CANCELLATION POLICY */}
         <Route path="/cancellation-policy" element={<CancellationPolicy />} />
 
         {/* 🚀 DEFAULT */}
         <Route
           path="*"
-          element={<Navigate to={user ? "/dashboard" : "/login"} />}
+          element={<Navigate to={user ? "/dashboard" : "/classes"} />}
         />
       </Routes>
 
-      {/* 🚀 FLOATING SUPPORT */}
+      {/* 🚀 SUPPORT ONLY FOR LOGGED USERS */}
       {user && <FloatingSupport />}
 
       {/* 🚀 FOOTER */}
