@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 export default function Quiz() {
+
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -32,9 +33,13 @@ export default function Quiz() {
 
   // 🚀 FETCH QUIZ
   useEffect(() => {
+
     const fetchQuiz = async () => {
+
       try {
+
         const res = await api.post(
+
           "/quiz/generate",
 
           {
@@ -49,34 +54,71 @@ export default function Quiz() {
         );
 
         setQuestions(res.data.questions);
+
       } catch (err) {
+
         console.log(err);
 
-        alert(err?.response?.data?.msg || "Quiz generation failed");
+        alert(
+
+          err?.response?.data?.msg ||
+
+            "Quiz generation failed"
+        );
 
         navigate("/dashboard");
+
       } finally {
+
         setLoading(false);
       }
     };
 
-    if (!className || !subject || !chapter || !type) {
+    if (
+
+      !className ||
+
+      !subject ||
+
+      !chapter ||
+
+      !type
+    ) {
+
       navigate("/dashboard");
 
       return;
     }
 
     fetchQuiz();
-  }, [className, subject, chapter, type, navigate]);
+
+  }, [
+
+    className,
+
+    subject,
+
+    chapter,
+
+    type,
+
+    navigate,
+  ]);
 
   // 🚀 LOADING
   if (loading) {
+
     return (
+
       <div className="min-h-screen flex items-center justify-center">
+
         <div className="text-center">
+
           <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />
 
-          <p className="mt-6 text-gray-600 text-lg">Generating AI Quiz...</p>
+          <p className="mt-6 text-gray-600 text-lg">
+            Loading Quiz...
+          </p>
         </div>
       </div>
     );
@@ -84,19 +126,28 @@ export default function Quiz() {
 
   // 🚀 NO QUESTIONS
   if (!questions || questions.length === 0) {
+
     return (
+
       <div className="min-h-screen flex items-center justify-center px-4">
+
         <div className="bg-white rounded-3xl shadow-xl p-10 text-center max-w-lg">
+
           <h2 className="text-3xl font-bold text-red-500">
             No Questions Found 😢
           </h2>
 
           <p className="text-gray-500 mt-4">
-            Questions are being prepared. Please try again later.
+            Questions are being prepared.
+            Please try again later.
           </p>
 
           <button
-            onClick={() => navigate("/dashboard")}
+
+            onClick={() =>
+              navigate("/dashboard")
+            }
+
             className="mt-8 bg-purple-600 text-white px-6 py-3 rounded-2xl font-bold hover:scale-105 transition"
           >
             Back to Dashboard
@@ -106,88 +157,151 @@ export default function Quiz() {
     );
   }
 
-  const question = questions[current];
+  const question =
+    questions[current];
 
   // 🚀 SELECT ANSWER
-  const selectAnswer = (option) => {
-    setAnswers({
-      ...answers,
+  const selectAnswer =
+    (option) => {
 
-      [current]: option,
-    });
-  };
+      setAnswers({
+
+        ...answers,
+
+        [current]: option,
+      });
+    };
 
   // 🚀 NEXT
-  const nextQuestion = () => {
-    if (current < questions.length - 1) {
-      setCurrent(current + 1);
-    }
-  };
+  const nextQuestion =
+    () => {
+
+      if (
+        current <
+        questions.length - 1
+      ) {
+
+        setCurrent(
+          current + 1
+        );
+      }
+    };
 
   // 🚀 PREVIOUS
-  const previousQuestion = () => {
-    if (current > 0) {
-      setCurrent(current - 1);
-    }
-  };
+  const previousQuestion =
+    () => {
+
+      if (current > 0) {
+
+        setCurrent(
+          current - 1
+        );
+      }
+    };
 
   // 🚀 SUBMIT QUIZ
-  const submitQuiz = async () => {
-    try {
-      setSubmitting(true);
+  const submitQuiz =
+    async () => {
 
-      // 🚀 GET USER
-      const stored = JSON.parse(localStorage.getItem("user"));
+      try {
 
-      const user = stored?.user || stored;
+        setSubmitting(true);
 
-      // 🚀 FORMAT ANSWERS
-      const formattedAnswers = questions.map(
-        (_, index) => answers[index] || "",
-      );
+        // 🚀 GET USER
+        const stored =
+          JSON.parse(
 
-      // 🚀 SUBMIT
-      const res = await api.post(
-        "/quiz/submit",
+            localStorage.getItem(
+              "user"
+            )
+          );
 
-        {
-          userId: user?.id || user?._id,
+        const user =
+          stored?.user ||
+          stored;
 
-          subject,
+        // 🚀 FORMAT ANSWERS
+        const formattedAnswers =
+          questions.map(
 
-          chapter,
+            (_, index) =>
 
-          quiz: questions,
+              answers[index] ||
+              ""
+          );
 
-          answers: formattedAnswers,
-        },
-      );
+        // 🚀 SUBMIT
+        const res =
+          await api.post(
 
-      // 🚀 RESULT PAGE
-      navigate(
-        "/result",
+            "/quiz/submit",
 
-        {
-          state: res.data,
-        },
-      );
-    } catch (err) {
-      console.log(err);
+            {
+              userId:
+                user?.id ||
+                user?._id,
 
-      alert(err?.response?.data?.msg || "Submit failed");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+              subject,
+
+              chapter,
+
+              quiz:
+                questions,
+
+              answers:
+                formattedAnswers,
+            },
+          );
+
+        // 🚀 RESULT PAGE
+        navigate(
+
+          "/result",
+
+          {
+            state: {
+
+              ...res.data,
+
+              quiz:
+                questions,
+
+              answers:
+                formattedAnswers,
+            },
+          }
+        );
+
+      } catch (err) {
+
+        console.log(err);
+
+        alert(
+
+          err?.response?.data?.msg ||
+
+            "Submit failed"
+        );
+
+      } finally {
+
+        setSubmitting(false);
+      }
+    };
 
   return (
+
     <div className="min-h-screen max-w-5xl mx-auto px-4 py-10">
+
       {/* 🚀 HEADER */}
       <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
           <div>
+
             <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-600 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-              🚀 AI Generated Quiz
+              🚀 AI Quiz
             </div>
 
             <h1 className="text-3xl md:text-4xl font-black text-gray-800">
@@ -201,20 +315,28 @@ export default function Quiz() {
 
           {/* 🚀 PROGRESS */}
           <div className="text-center">
+
             <div className="text-5xl font-black text-purple-600">
               {current + 1}
             </div>
 
-            <p className="text-gray-500 mt-2">/ {questions.length}</p>
+            <p className="text-gray-500 mt-2">
+              / {questions.length}
+            </p>
           </div>
         </div>
 
         {/* 🚀 BAR */}
         <div className="w-full bg-gray-200 rounded-full h-3 mt-8 overflow-hidden">
+
           <div
+
             className="bg-gradient-to-r from-purple-600 to-indigo-600 h-3 rounded-full transition-all duration-500"
+
             style={{
-              width: `${((current + 1) / questions.length) * 100}%`,
+
+              width:
+                `${((current + 1) / questions.length) * 100}%`,
             }}
           />
         </div>
@@ -222,17 +344,32 @@ export default function Quiz() {
 
       {/* 🚀 QUESTION */}
       <div className="bg-white rounded-3xl shadow-xl p-8 mt-10 border border-gray-100">
+
         <h2 className="text-2xl font-bold text-gray-800 leading-relaxed">
           {question.question}
         </h2>
 
         {/* 🚀 OPTIONS */}
         <div className="mt-8 space-y-5">
-          {question.options.map((option, index) => (
-            <button
-              key={index}
-              onClick={() => selectAnswer(option)}
-              className={`
+
+          {question.options.map(
+
+            (
+              option,
+              index
+            ) => (
+
+              <button
+
+                key={index}
+
+                onClick={() =>
+                  selectAnswer(
+                    option
+                  )
+                }
+
+                className={`
 
                   w-full
                   text-left
@@ -244,21 +381,34 @@ export default function Quiz() {
 
                   ${
                     answers[current] === option
+
                       ? "border-purple-600 bg-purple-50 text-purple-700"
+
                       : "border-gray-200 hover:border-purple-300 hover:bg-purple-50/50"
                   }
                 `}
-            >
-              {option}
-            </button>
-          ))}
+              >
+
+                {option}
+
+              </button>
+            )
+          )}
         </div>
 
         {/* 🚀 BUTTONS */}
         <div className="flex flex-wrap gap-4 justify-between mt-10">
+
           <button
-            onClick={previousQuestion}
-            disabled={current === 0}
+
+            onClick={
+              previousQuestion
+            }
+
+            disabled={
+              current === 0
+            }
+
             className={`
 
               px-6
@@ -269,7 +419,9 @@ export default function Quiz() {
 
               ${
                 current === 0
+
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+
                   : "bg-gray-100 hover:bg-gray-200"
               }
             `}
@@ -277,10 +429,20 @@ export default function Quiz() {
             ← Previous
           </button>
 
-          {current === questions.length - 1 ? (
+          {current ===
+          questions.length -
+            1 ? (
+
             <button
-              onClick={submitQuiz}
-              disabled={submitting}
+
+              onClick={
+                submitQuiz
+              }
+
+              disabled={
+                submitting
+              }
+
               className={`
 
                   px-8
@@ -292,16 +454,30 @@ export default function Quiz() {
 
                   ${
                     submitting
+
                       ? "bg-gray-400 cursor-not-allowed"
+
                       : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105"
                   }
                 `}
             >
-              {submitting ? "Submitting Quiz..." : "Submit Quiz 🚀"}
+
+              {submitting
+
+                ? "Submitting Quiz..."
+
+                : "Submit Quiz 🚀"}
+
             </button>
+
           ) : (
+
             <button
-              onClick={nextQuestion}
+
+              onClick={
+                nextQuestion
+              }
+
               className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-all"
             >
               Next →
