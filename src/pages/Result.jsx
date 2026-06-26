@@ -2,22 +2,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Result() {
   const navigate = useNavigate();
-
   const location = useLocation();
 
   const result = location.state;
 
-  const isGuest = result?.guest === true;
-
-  // 🚀 NO RESULT
   if (!result) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
+        {" "}
         <div className="bg-white p-10 rounded-3xl shadow-xl text-center">
-          <h2 className="text-3xl font-black text-gray-800">No Result Found</h2>
-
+          {" "}
+          <h2 className="text-3xl font-black text-gray-800">
+            No Result Found{" "}
+          </h2>
           <p className="text-gray-500 mt-4">Please attempt a quiz first.</p>
-
           <button
             onClick={() => navigate("/classes")}
             className="mt-8 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold"
@@ -29,9 +27,10 @@ export default function Result() {
     );
   }
 
+  const isGuest = result?.guest === true;
+
   const percentage = Math.round((result.score / result.total) * 100);
 
-  // 🚀 PERFORMANCE
   const performance =
     percentage >= 80
       ? {
@@ -53,12 +52,11 @@ export default function Result() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* 🚀 HERO */}
       <div
         className={`relative overflow-hidden rounded-[35px] bg-gradient-to-r ${performance.color} text-white p-8 shadow-2xl mb-10`}
       >
+        {" "}
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/20 rounded-full blur-3xl"></div>
-
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
           <div>
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-5 py-2 rounded-full text-sm font-semibold mb-5">
@@ -70,13 +68,10 @@ export default function Result() {
             </h1>
 
             <p className="mt-4 text-white/90 text-lg">
-              You scored {result.score}
-              {" / "}
-              {result.total}
+              You scored {result.score} / {result.total}
             </p>
           </div>
 
-          {/* 🚀 SCORE */}
           <div className="bg-white/20 backdrop-blur-xl rounded-[30px] p-8 text-center min-w-[220px]">
             <p className="text-sm uppercase tracking-[4px] opacity-80">
               Accuracy
@@ -87,7 +82,6 @@ export default function Result() {
         </div>
       </div>
 
-      {/* 🚀 GUEST CTA */}
       {isGuest && (
         <div className="mb-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-8 text-white text-center shadow-xl">
           <h2 className="text-3xl font-black">🎉 Great Job!</h2>
@@ -106,7 +100,6 @@ export default function Result() {
         </div>
       )}
 
-      {/* 🚀 ANSWER REVIEW */}
       <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
         <h2 className="text-3xl font-black text-gray-800 mb-8">
           Answer Review 🚀
@@ -115,9 +108,7 @@ export default function Result() {
         <div className="space-y-8">
           {result.quiz?.map((q, index) => {
             const selected = result.answers?.[index];
-
             const correct = q.correctAnswer;
-
             const isCorrect = selected === correct;
 
             return (
@@ -135,29 +126,46 @@ export default function Result() {
                   </p>
 
                   <div
-                    className={`
-                        p-4
-                        rounded-2xl
-                        font-semibold
-                        ${
-                          isCorrect
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }
-                      `}
+                    className={`p-4 rounded-2xl font-semibold ${
+                      isCorrect
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
                   >
                     {selected || "Not Answered"}
                   </div>
                 </div>
 
-                {!isCorrect && (
+                <div className="mt-5">
+                  <p className="text-sm font-semibold text-gray-500 mb-2">
+                    Correct Answer
+                  </p>
+
+                  <div className="p-4 rounded-2xl bg-green-100 text-green-700 font-semibold">
+                    {correct}
+                  </div>
+                </div>
+
+                {q.learningObjective && (
                   <div className="mt-5">
                     <p className="text-sm font-semibold text-gray-500 mb-2">
-                      Correct Answer
+                      🎯 Learning Objective
                     </p>
 
-                    <div className="p-4 rounded-2xl bg-green-100 text-green-700 font-semibold">
-                      {correct}
+                    <div className="p-4 rounded-2xl bg-purple-50 text-purple-700">
+                      {q.learningObjective}
+                    </div>
+                  </div>
+                )}
+
+                {q.explanation && (
+                  <div className="mt-5">
+                    <p className="text-sm font-semibold text-gray-500 mb-2">
+                      💡 Explanation
+                    </p>
+
+                    <div className="p-4 rounded-2xl bg-blue-50 text-blue-800 leading-relaxed">
+                      {q.explanation}
                     </div>
                   </div>
                 )}
@@ -167,7 +175,6 @@ export default function Result() {
         </div>
       </div>
 
-      {/* 🚀 BUTTONS */}
       <div className="grid md:grid-cols-2 gap-6 mt-12">
         <button
           onClick={() => navigate("/classes")}

@@ -17,7 +17,8 @@ import Result from "./pages/Result";
 import Pricing from "./pages/Pricing";
 import Leaderboard from "./pages/Leaderboard";
 import Admin from "./pages/Admin";
-
+import AdminQuestionBank from "./pages/AdminQuestionBank";
+import StudyNotes from "./pages/StudyNotes";
 // 🚀 SUPPORT PAGES
 import Contact from "./pages/Contact";
 import Feedback from "./pages/Feedback";
@@ -158,6 +159,15 @@ export default function App() {
           }
         />
 
+        <Route
+          path="/study-notes"
+          element={
+            <PrivateRoute>
+              <StudyNotes />
+            </PrivateRoute>
+          }
+        />
+
         {/* 🚀 PRIVACY POLICY */}
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
@@ -174,6 +184,15 @@ export default function App() {
         <Route
           path="*"
           element={<Navigate to={user ? "/dashboard" : "/classes"} />}
+        />
+
+        <Route
+          path="/admin-question-bank"
+          element={
+            <AdminRoute>
+              <AdminQuestionBank />
+            </AdminRoute>
+          }
         />
       </Routes>
 

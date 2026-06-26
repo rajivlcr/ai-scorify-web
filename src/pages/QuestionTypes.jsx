@@ -1,7 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function QuestionTypes() {
   const navigate = useNavigate();
+
+  const { user } = useAuth();
+
+  const isPro = user?.plan?.toLowerCase() === "pro";
 
   const location = useLocation();
 
@@ -19,32 +24,49 @@ export default function QuestionTypes() {
       type: "mcq",
       emoji: "📘",
       gradient: "from-blue-500 to-cyan-500",
-      desc: "Unlimited MCQ practice for free",
+      desc: "Unlimited MCQ Practice",
       locked: false,
     },
 
     {
       title: "Assertion & Reason",
       type: "assertion",
-      emoji: "🔒",
-      gradient: "from-gray-500 to-gray-600",
-      desc: "Register to unlock",
-      locked: true,
+      emoji: isPro ? "🧠" : "🔒",
+      gradient: isPro
+        ? "from-purple-500 to-indigo-600"
+        : "from-gray-500 to-gray-600",
+      desc: isPro ? "Board Pattern Assertion Questions" : "Pro Feature",
+      locked: !isPro,
     },
 
     {
-      title: "Case Study",
-      type: "case-study",
-      emoji: "🔒",
-      gradient: "from-gray-500 to-gray-600",
-      desc: "Register to unlock",
-      locked: true,
+      title: "AI Study Notes",
+      type: "notes",
+      emoji: isPro ? "📚" : "🔒",
+      gradient: isPro
+        ? "from-cyan-500 to-blue-600"
+        : "from-gray-500 to-gray-600",
+      desc: isPro ? "AI Generated Chapter Notes" : "Pro Feature",
+      locked: !isPro,
     },
   ];
 
   const startQuiz = (item) => {
     if (item.locked) {
-      navigate("/register");
+      navigate("/pricing");
+      return;
+    }
+
+    if (item.type === "notes") {
+      console.log({
+        className,
+        subject,
+        chapter,
+      });
+      navigate(
+        `/study-notes?className=${className}&subject=${subject}&chapter=${chapter}`,
+      );
+
       return;
     }
 
@@ -57,11 +79,11 @@ export default function QuestionTypes() {
     <div className="min-h-screen max-w-7xl mx-auto px-4 py-10">
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-600 px-5 py-2 rounded-full text-sm font-semibold mb-6">
-          🚀 AI Powered Quiz Modes
+          🚀 AI Powered Learning
         </div>
 
         <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-          Choose Question Type
+          Choose Learning Mode
         </h1>
 
         <p className="text-gray-500 text-lg mt-5">
@@ -87,7 +109,7 @@ export default function QuestionTypes() {
                 <div className="text-6xl">{item.emoji}</div>
 
                 <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-bold">
-                  {item.locked ? "LOCKED" : "FREE"}
+                  {item.locked ? "PRO" : "AVAILABLE"}
                 </div>
               </div>
 
@@ -102,11 +124,11 @@ export default function QuestionTypes() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm opacity-80">
-                    {item.locked ? "Create Account" : "Start Practice"}
+                    {item.locked ? "Upgrade Required" : "Start Learning"}
                   </p>
 
                   <p className="font-bold text-lg mt-1">
-                    {item.locked ? "Register →" : "Continue →"}
+                    {item.locked ? "Upgrade →" : "Continue →"}
                   </p>
                 </div>
 
@@ -119,21 +141,23 @@ export default function QuestionTypes() {
         ))}
       </div>
 
-      <div className="mt-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-8 text-white text-center">
-        <h2 className="text-3xl font-black">Register to Unlock Everything</h2>
+      {!isPro && (
+        <div className="mt-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-8 text-white text-center">
+          <h2 className="text-3xl font-black">Upgrade to Pro</h2>
 
-        <p className="mt-4 text-white/90">
-          Access all chapters, leaderboard, XP, streaks, assertion & reason, and
-          case study questions.
-        </p>
+          <p className="mt-4 text-white/90">
+            Unlock AI Study Notes, unlimited chapters and Assertion & Reason
+            questions.
+          </p>
 
-        <button
-          onClick={() => navigate("/register")}
-          className="mt-6 bg-white text-purple-700 px-8 py-4 rounded-2xl font-bold"
-        >
-          Register Free
-        </button>
-      </div>
+          <button
+            onClick={() => navigate("/pricing")}
+            className="mt-6 bg-white text-purple-700 px-8 py-4 rounded-2xl font-bold"
+          >
+            Upgrade Now
+          </button>
+        </div>
+      )}
     </div>
   );
 }

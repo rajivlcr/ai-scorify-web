@@ -27,14 +27,16 @@ export default function Navbar() {
               />
             </div>
 
-            {/* CENTER NAV */}
             <div className="hidden md:flex items-center gap-3">
-              <Link
-                to="/classes"
-                className="px-5 py-3 rounded-2xl font-medium text-gray-700 hover:bg-purple-100 hover:text-purple-600 transition"
-              >
-                Free MCQ Quiz
-              </Link>
+              {/* GUESTS ONLY */}
+              {!user && (
+                <Link
+                  to="/classes"
+                  className="px-5 py-3 rounded-2xl font-medium text-gray-700 hover:bg-purple-100 hover:text-purple-600 transition"
+                >
+                  Free MCQ Quiz
+                </Link>
+              )}
 
               {user && (
                 <>
@@ -51,6 +53,25 @@ export default function Navbar() {
                   >
                     Leaderboard
                   </Link>
+
+                  {/* ADMIN */}
+                  {user?.role === "admin" && (
+                    <>
+                      <Link
+                        to="/admin"
+                        className="px-5 py-3 rounded-2xl font-medium text-red-600 hover:bg-red-100 transition"
+                      >
+                        Admin
+                      </Link>
+
+                      <Link
+                        to="/admin-question-bank"
+                        className="px-5 py-3 rounded-2xl font-medium text-indigo-600 hover:bg-indigo-100 transition"
+                      >
+                        Question Bank
+                      </Link>
+                    </>
+                  )}
                 </>
               )}
             </div>

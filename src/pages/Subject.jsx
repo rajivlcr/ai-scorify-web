@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 
 export default function Subject() {
   const navigate = useNavigate();
+
+  const { user } = useAuth();
 
   const { className, subject } = useParams();
 
@@ -43,7 +46,11 @@ export default function Subject() {
 
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-sm font-semibold mb-5">
-            🎁 Free Guest Access
+            {!user
+              ? "🎁 Free Guest Access"
+              : user?.plan?.toLowerCase() === "pro"
+                ? "🚀 Pro Access"
+                : "🎓 Free Account"}
           </div>
 
           <h1 className="text-4xl md:text-5xl font-black capitalize">
@@ -51,7 +58,11 @@ export default function Subject() {
           </h1>
 
           <p className="mt-4 text-lg text-white/90">
-            First chapter is free. Register to unlock all chapters.
+            {!user
+              ? "Guest users get 1 free chapter. Register free to unlock up to 5 chapters."
+              : user?.plan?.toLowerCase() === "pro"
+                ? "Unlimited chapter access with MCQ and Assertion & Reason quizzes."
+                : "You can access up to 5 chapters with unlimited MCQ practice."}
           </p>
         </div>
       </div>
@@ -68,13 +79,13 @@ export default function Subject() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {chapters.map((chapter, index) => {
-          const isFree = index === 0;
+          const isGuestLocked = !user && index > 0;
 
           return (
             <div
               key={index}
               onClick={() => {
-                if (!isFree) {
+                if (isGuestLocked) {
                   navigate("/register");
                   return;
                 }
@@ -91,13 +102,23 @@ export default function Subject() {
 
               <div className="relative z-10">
                 <div className="mb-4">
-                  {isFree ? (
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
-                      FREE
+                  {!user ? (
+                    isGuestLocked ? (
+                      <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
+                        🔒 Register Required
+                      </span>
+                    ) : (
+                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
+                        FREE
+                      </span>
+                    )
+                  ) : user?.plan?.toLowerCase() === "pro" ? (
+                    <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-bold">
+                      PRO
                     </span>
                   ) : (
-                    <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
-                      🔒 Register Required
+                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-bold">
+                      FREE ACCOUNT
                     </span>
                   )}
                 </div>
@@ -111,14 +132,22 @@ export default function Subject() {
                 </h2>
 
                 <p className="text-gray-500 mt-4 leading-relaxed">
-                  {isFree
-                    ? "Unlimited free MCQ practice."
-                    : "Register to unlock this chapter."}
+                  {!user
+                    ? isGuestLocked
+                      ? "Register free to unlock up to 5 chapters."
+                      : "Unlimited free MCQ practice."
+                    : user?.plan?.toLowerCase() === "pro"
+                      ? "Unlimited chapter access."
+                      : "Available under your Free Account."}
                 </p>
 
                 <div className="mt-8 flex items-center justify-between">
                   <span className="text-purple-600 font-bold">
-                    {isFree ? "Start Quiz →" : "Register to Unlock →"}
+                    {!user
+                      ? isGuestLocked
+                        ? "Register to Unlock →"
+                        : "Start Quiz →"
+                      : "Start Quiz →"}
                   </span>
 
                   <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl group-hover:translate-x-1 transition">

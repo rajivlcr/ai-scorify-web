@@ -6,13 +6,13 @@ export default function Quiz() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🚀 QUERY PARAMS
   const params = new URLSearchParams(location.search);
 
   const className = params.get("className");
   const subject = params.get("subject");
   const chapter = params.get("chapter");
   const type = params.get("type");
+  const revision = params.get("revision");
 
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState([]);
@@ -20,18 +20,26 @@ export default function Quiz() {
   const [current, setCurrent] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
-  // 🚀 FETCH QUIZ
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const res = await api.post("/quiz/generate", {
-          className,
-          subject,
-          chapter,
-          type,
-        });
+        let res;
 
-        setQuestions(res.data.questions);
+        // 🚀 REVISION QUIZ
+        if (revision === "true") {
+          res = await api.get("/quiz/revision");
+        } else {
+          res = await api.post("/quiz/generate", {
+            className,
+            subject,
+            chapter,
+            type,
+          });
+        }
+
+        setQuestions(res.data.questions || []);
+
+        console.log("FIRST QUESTION:", res.data.questions?.[0]);
       } catch (err) {
         console.log(err);
 
@@ -43,15 +51,14 @@ export default function Quiz() {
       }
     };
 
-    if (!className || !subject || !chapter || !type) {
+    if (revision !== "true" && (!className || !subject || !chapter || !type)) {
       navigate("/classes");
       return;
     }
 
     fetchQuiz();
-  }, [className, subject, chapter, type, navigate]);
+  }, [className, subject, chapter, type, revision, navigate]);
 
-  // 🚀 LOADING
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -64,7 +71,6 @@ export default function Quiz() {
     );
   }
 
-  // 🚀 NO QUESTIONS
   if (!questions || questions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -90,7 +96,6 @@ export default function Quiz() {
 
   const question = questions[current];
 
-  // 🚀 SELECT ANSWER
   const selectAnswer = (option) => {
     setAnswers({
       ...answers,
@@ -98,56 +103,50 @@ export default function Quiz() {
     });
   };
 
-  // 🚀 NEXT
   const nextQuestion = () => {
     if (current < questions.length - 1) {
       setCurrent(current + 1);
     }
   };
 
-  // 🚀 PREVIOUS
   const previousQuestion = () => {
     if (current > 0) {
       setCurrent(current - 1);
     }
   };
 
-  // 🚀 SUBMIT QUIZ
   const submitQuiz = async () => {
     try {
       setSubmitting(true);
 
-      // 🚀 GET USER (SAFE FOR GUESTS)
       const storedRaw = localStorage.getItem("user");
 
       const stored = storedRaw ? JSON.parse(storedRaw) : null;
 
       const user = stored?.user || stored || null;
 
-      // 🚀 FORMAT ANSWERS
       const formattedAnswers = questions.map(
         (_, index) => answers[index] || "",
       );
 
-      // 🚀 SUBMIT
       const res = await api.post("/quiz/submit", {
         userId: user?.id || user?._id,
 
-        subject,
+        subject: subject || questions?.[0]?.subject || "revision",
 
-        chapter,
+        chapter: chapter || questions?.[0]?.chapter || "revision",
 
         quiz: questions,
 
         answers: formattedAnswers,
       });
 
-      // 🚀 RESULT PAGE
       navigate("/result", {
         state: {
           ...res.data,
           quiz: questions,
           answers: formattedAnswers,
+          revision: revision === "true",
         },
       });
     } catch (err) {
@@ -166,19 +165,20 @@ export default function Quiz() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-600 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-              🚀 AI Quiz
+              {revision === "true" ? "🔥 Revision Quiz" : "🚀 AI Quiz"}
             </div>
 
             <h1 className="text-3xl md:text-4xl font-black text-gray-800">
-              {chapter}
+              {revision === "true" ? "Mistake Revision Quiz" : chapter}
             </h1>
 
             <p className="text-gray-500 mt-2">
-              {subject} • {type}
+              {revision === "true"
+                ? "Practice Your Weak Areas"
+                : `${subject} • ${type}`}
             </p>
           </div>
 
-          {/* 🚀 PROGRESS */}
           <div className="text-center">
             <div className="text-5xl font-black text-purple-600">
               {current + 1}
@@ -188,7 +188,6 @@ export default function Quiz() {
           </div>
         </div>
 
-        {/* 🚀 BAR */}
         <div className="w-full bg-gray-200 rounded-full h-3 mt-8 overflow-hidden">
           <div
             className="bg-gradient-to-r from-purple-600 to-indigo-600 h-3 rounded-full transition-all duration-500"
@@ -205,51 +204,53 @@ export default function Quiz() {
           {question.question}
         </h2>
 
-        {/* 🚀 OPTIONS */}
+        <div className="flex flex-wrap gap-3 mt-5">
+          {question.category && (
+            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">
+              {question.category.toUpperCase()}
+            </span>
+          )}
+
+          {question.difficulty && (
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                question.difficulty === "easy"
+                  ? "bg-green-100 text-green-700"
+                  : question.difficulty === "hard"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-yellow-100 text-yellow-700"
+              }`}
+            >
+              {question.difficulty.toUpperCase()}
+            </span>
+          )}
+        </div>
+
         <div className="mt-8 space-y-5">
-          {question.options.map((option, index) => (
+          {question.options?.map((option, index) => (
             <button
               key={index}
               onClick={() => selectAnswer(option)}
-              className={`
-                  w-full
-                  text-left
-                  p-5
-                  rounded-2xl
-                  border-2
-                  transition-all
-                  font-medium
-
-                  ${
-                    answers[current] === option
-                      ? "border-purple-600 bg-purple-50 text-purple-700"
-                      : "border-gray-200 hover:border-purple-300 hover:bg-purple-50/50"
-                  }
-                `}
+              className={`w-full text-left p-5 rounded-2xl border-2 transition-all font-medium ${
+                answers[current] === option
+                  ? "border-purple-600 bg-purple-50 text-purple-700"
+                  : "border-gray-200 hover:border-purple-300 hover:bg-purple-50/50"
+              }`}
             >
               {option}
             </button>
           ))}
         </div>
 
-        {/* 🚀 BUTTONS */}
         <div className="flex flex-wrap gap-4 justify-between mt-10">
           <button
             onClick={previousQuestion}
             disabled={current === 0}
-            className={`
-              px-6
-              py-3
-              rounded-2xl
-              font-bold
-              transition
-
-              ${
-                current === 0
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 hover:bg-gray-200"
-              }
-            `}
+            className={`px-6 py-3 rounded-2xl font-bold transition ${
+              current === 0
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-gray-100 hover:bg-gray-200"
+            }`}
           >
             ← Previous
           </button>
@@ -258,20 +259,11 @@ export default function Quiz() {
             <button
               onClick={submitQuiz}
               disabled={submitting}
-              className={`
-                px-8
-                py-4
-                rounded-2xl
-                font-bold
-                text-white
-                transition-all
-
-                ${
-                  submitting
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105"
-                }
-              `}
+              className={`px-8 py-4 rounded-2xl font-bold text-white transition-all ${
+                submitting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105"
+              }`}
             >
               {submitting ? "Submitting Quiz..." : "Submit Quiz 🚀"}
             </button>

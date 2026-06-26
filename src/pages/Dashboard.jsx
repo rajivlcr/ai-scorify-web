@@ -17,6 +17,18 @@ export default function Dashboard() {
     achievements: [],
 
     recent: [],
+
+    focusAreas: [],
+
+    recommendations: [],
+
+    avgScore: 0,
+
+    total: 0,
+
+    chapterProgress: [],
+
+    masteredChapters: [],
   });
 
   // 🚀 LOAD DASHBOARD
@@ -61,13 +73,13 @@ export default function Dashboard() {
     },
 
     {
-      title: "Case Study",
+      title: "AI Study Notes",
 
-      emoji: "📄",
+      emoji: "📚",
 
-      gradient: "from-orange-500 to-red-500",
+      gradient: "from-cyan-500 to-blue-600",
 
-      path: "/classes",
+      path: "/study-notes",
 
       premium: true,
     },
@@ -192,8 +204,208 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* 🚀 LEARNING ANALYTICS */}
+      <div className="grid md:grid-cols-4 gap-6 mb-10">
+        <div className="bg-white rounded-3xl p-6 shadow-lg">
+          <p className="text-gray-500">Total Quizzes</p>
+
+          <h2 className="text-4xl font-black text-purple-600 mt-2">
+            {dashboard.total || 0}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-3xl p-6 shadow-lg">
+          <p className="text-gray-500">Average Accuracy</p>
+
+          <h2 className="text-4xl font-black text-green-600 mt-2">
+            {Math.round(dashboard.avgAccuracy || 0)}%
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-3xl p-6 shadow-lg">
+          <p className="text-gray-500">Focus Areas</p>
+
+          <h2 className="text-4xl font-black text-red-500 mt-2">
+            {dashboard.focusAreas?.length || 0}
+          </h2>
+        </div>
+
+        <div className="bg-white rounded-3xl p-6 shadow-lg">
+          <p className="text-gray-500">Mastered Chapters</p>
+
+          <h2 className="text-4xl font-black text-blue-600 mt-2">
+            {dashboard.masteredChapters?.length || 0}
+          </h2>
+        </div>
+      </div>
+      {/* 🚀 REVISION QUIZ */}
+      <div className="mb-10">
+        <div className="bg-gradient-to-r from-red-500 to-orange-500 rounded-[30px] p-8 text-white shadow-xl">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <h2 className="text-3xl font-black">🔥 Mistake Revision Quiz</h2>
+
+              <p className="mt-3 text-white/90">
+                Practice questions from concepts where you previously made
+                mistakes.
+              </p>
+            </div>
+
+            <button
+              onClick={() => navigate("/quiz?revision=true")}
+              className="bg-white text-red-600 px-8 py-4 rounded-2xl font-black"
+            >
+              Start Revision
+            </button>
+          </div>
+        </div>
+      </div>
+      {/* 🚀 STUDY RECOMMENDATIONS */}
+      <div className="mb-10">
+        <div className="bg-white rounded-[30px] shadow-lg border border-gray-100 p-7">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-7">
+            📖 Recommended Next Topics
+          </h2>
+
+          {!dashboard.recommendations ||
+          dashboard.recommendations.length === 0 ? (
+            <p className="text-gray-500">
+              Complete more quizzes to get personalized recommendations.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {dashboard.recommendations.map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-blue-50 border border-blue-100 rounded-2xl p-5"
+                >
+                  <h3 className="font-black text-gray-800">{item.title}</h3>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                    Chapter: {item.chapter}
+                  </p>
+
+                  <p className="text-sm text-red-500 mt-2 font-bold">
+                    Priority Score: {item.priority}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      {/* 🚀 FOCUS AREAS */}
+      <div className="mb-10">
+        <div className="bg-white rounded-[30px] shadow-lg border border-gray-100 p-7">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-7">
+            🎯 Focus Areas
+          </h2>
+
+          {!dashboard.focusAreas || dashboard.focusAreas.length === 0 ? (
+            <div className="bg-gray-50 rounded-2xl p-6 text-center">
+              <div className="text-5xl mb-4">🎯</div>
+
+              <h3 className="text-xl font-bold text-gray-800">
+                No Weak Areas Found
+              </h3>
+
+              <p className="text-gray-500 mt-2">
+                Keep practicing quizzes to generate personalized learning
+                insights.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {dashboard.focusAreas.map((area, index) => (
+                <div
+                  key={index}
+                  className="bg-red-50 border border-red-100 rounded-2xl p-5"
+                >
+                  <div className="flex justify-between items-start gap-4">
+                    <div>
+                      <h3 className="font-black text-gray-800">
+                        {area.chapter}
+                      </h3>
+
+                      <p className="text-sm text-gray-600 mt-1">
+                        {area.learningObjective || "General Concept"}
+                      </p>
+                    </div>
+
+                    <div className="bg-red-500 text-white px-4 py-2 rounded-xl font-bold">
+                      {area.wrongCount} Mistakes
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      {/* 🚀 MASTERED CHAPTERS */}
+      <div className="mb-10">
+        <div className="bg-white rounded-[30px] shadow-lg border border-gray-100 p-7">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-7">
+            🏆 Mastered Chapters
+          </h2>
+
+          {!dashboard.masteredChapters ||
+          dashboard.masteredChapters.length === 0 ? (
+            <div className="text-gray-500">
+              Complete more quizzes to unlock mastered chapters.
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-4">
+              {dashboard.masteredChapters.map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-green-100 text-green-700 px-5 py-3 rounded-2xl font-bold"
+                >
+                  ✅ {item.chapter}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       {/* 🚀 GRID */}
       <div className="grid lg:grid-cols-2 gap-8">
+        {/* 🚀 CHAPTER COMPLETION */}
+        <div className="mb-10">
+          <div className="bg-white rounded-[30px] shadow-lg border border-gray-100 p-7">
+            <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-7">
+              📚 Chapter Completion
+            </h2>
+
+            {!dashboard.chapterProgress ||
+            dashboard.chapterProgress.length === 0 ? (
+              <p className="text-gray-500">
+                Start attempting quizzes to track chapter progress.
+              </p>
+            ) : (
+              <div className="space-y-5">
+                {dashboard.chapterProgress.map((item, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between mb-2">
+                      <span className="font-bold">{item.chapter}</span>
+
+                      <span>{item.completion}%</span>
+                    </div>
+
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 h-3 rounded-full"
+                        style={{
+                          width: `${item.completion}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
         {/* 🚀 RECENT */}
         <div className="bg-white rounded-[30px] shadow-lg border border-gray-100 p-7">
           <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-7">
